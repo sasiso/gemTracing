@@ -28,14 +28,6 @@ cv2.imshow("Window", median_blur)
 cv2.waitKey(1000)
 
 
-# Calculate histogram
-hist = cv2.calcHist([median_blur], [0], None, [256], [0, 256])
-
-# Find the threshold value by analyzing the histogram
-total_pixels = median_blur.shape[0] * median_blur.shape[1]
-bright_area_threshold = 0.2  # Adjust this value as needed
-bright_area_threshold_pixel = int(total_pixels * bright_area_threshold)
-
 # Find edges
 edges = cv2.Canny(median_blur, 100, 200)
 
@@ -47,6 +39,28 @@ cv2.waitKey(5)
 
 inverted_img = cv2.bitwise_not(edges)
 cv2.imshow("Window", inverted_img)
+
+# Step 2: Find contours of the detected edges
+contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+# Assuming there's only one contour
+contour = contours[0]
+
+# Step 3: Draw a horizontal and a vertical line inside the contour
+# Calculate the midpoint of the contour (center of the object)
+M = cv2.moments(contour)
+cx = int(M['m10'] / M['m00'])
+cy = int(M['m01'] / M['m00'])
+
+# Draw a horizontal line
+cv2.line(edges, (cx - 50, cy), (cx + 50, cy), (255, 0, 0), 2)
+
+# Draw a vertical line
+cv2.line(edges, (cx, cy - 50), (cx, cy + 50), (255, 0, 0), 2)
+
+# Display the image with lines
+cv2.imshow('Image with lines', edges)
+cv2.waitKey(0)
 
 
 # Define the weights for each image
