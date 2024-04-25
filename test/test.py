@@ -1,11 +1,15 @@
 import cv2
 import numpy as np
+import os
 
 # Load the image
-image_path = '1.jpg'
+image_path = './test/opal.jpeg'
+assert os.path.exists(image_path)
+
 img = cv2.imread(image_path)
+assert img is not None
 cv2.imshow("Window", img)
-cv2.waitKey(5)
+cv2.waitKey(1000)
 
 # Convert to grayscale
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -15,13 +19,13 @@ cv2.imshow("Window", gray)
 # Convert the grayscale image to 8-bit
 gray = cv2.convertScaleAbs(gray)
 cv2.imshow("Window", gray)
-cv2.waitKey(5)
+cv2.waitKey(1000)
 
 
 # Apply median filter with a 5-pixel radius
 median_blur = cv2.medianBlur(gray, 5)
 cv2.imshow("Window", median_blur)
-cv2.waitKey(5)
+cv2.waitKey(1000)
 
 
 # Calculate histogram
@@ -32,26 +36,15 @@ total_pixels = median_blur.shape[0] * median_blur.shape[1]
 bright_area_threshold = 0.2  # Adjust this value as needed
 bright_area_threshold_pixel = int(total_pixels * bright_area_threshold)
 
-cumulative_sum = 0
-threshold_value = 0
-for i in range(256):
-    cumulative_sum += hist[i]
-    if cumulative_sum > bright_area_threshold_pixel:
-        threshold_value = i
-        break
-
-# Apply thresholding
-_, threshold = cv2.threshold(median_blur,240, 255, cv2.THRESH_BINARY)
-
-cv2.imshow("Window", threshold)
-cv2.waitKey(0)
-
-
 # Find edges
-edges = cv2.Canny(threshold, 255, 240)
+edges = cv2.Canny(median_blur, 100, 200)
 
 cv2.imshow("Window", edges)
 cv2.waitKey(5)
+
+
+
+
 inverted_img = cv2.bitwise_not(edges)
 cv2.imshow("Window", inverted_img)
 
