@@ -8,6 +8,7 @@ opencv-python = "*"
 jupyterlab = "*"
 ipykernel = "*"
 matplotlib = "*"
+numpy-stl = "*"
 
 [dev-packages]
 
