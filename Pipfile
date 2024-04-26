@@ -10,6 +10,7 @@ ipykernel = "*"
 matplotlib = "*"
 numpy-stl = "*"
 pyqt5 = "*"
+jupyter = "*"
 
 [dev-packages]
 

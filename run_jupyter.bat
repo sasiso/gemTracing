@@ -1,6 +1,6 @@
 @echo off
 rem Activate the Pipenv environment
-pipenv shell
+py -m pipenv shell
 
 rem Launch Jupyter Notebook
 jupyter notebook
