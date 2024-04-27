@@ -4,7 +4,7 @@ from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QColor
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
-from image_processor import get_contours, draw_line, process_size
+from image_processor import convert_to_stl, get_contours, draw_line, largest_contour, process_size
 from viewer import CustomGraphicsView
 
 class MainWindow(QMainWindow):
@@ -28,13 +28,15 @@ class MainWindow(QMainWindow):
         self.left_panel_layout = QVBoxLayout(self.left_panel)
 
         # Create buttons
-        self.process_button = QPushButton("Process")
+        self.process_button = QPushButton("Process")        
         self.calculate_size_button = QPushButton("Calculate")
+        self.makestl_button = QPushButton("Make STL")
         self.calculate_size_button.setEnabled(False)  # Initially disabled until height is entered
 
         # Add buttons to left panel
         self.left_panel_layout.addWidget(self.process_button)
         self.left_panel_layout.addWidget(self.calculate_size_button)
+        self.left_panel_layout.addWidget(self.makestl_button)
 
         # Add left panel to the layout
         self.layout.addWidget(self.left_panel, 0, 0, 1, 1)  # Span one row and one column
@@ -57,6 +59,7 @@ class MainWindow(QMainWindow):
         self.process_button.clicked.connect(self.process_image)
         self.calculate_size_button.clicked.connect(self.process_size)
         self.height_input.textChanged.connect(self.enable_calculate_button)
+        self.makestl_button.clicked.connect(self.make_stl)
 
         # Initialize variables
         self.image_path = None
@@ -103,7 +106,7 @@ class MainWindow(QMainWindow):
         assert os.path.exists(self.image_path)
 
         self.image = cv2.imread(self.image_path)
-        self.contours = get_contours(self.image)
+        self.contours = [largest_contour(get_contours(self.image)),]
         cv2.drawContours(self.image, self.contours, -1, (0, 255, 0), 3)
         self.h, self.w = draw_line(self.image, contours=self.contours)
 
@@ -143,6 +146,11 @@ class MainWindow(QMainWindow):
             self.calculate_size_button.setEnabled(True)
         else:
             self.calculate_size_button.setEnabled(False)
+
+    
+    def make_stl(self):
+        convert_to_stl(contours=self.contours, vertical_line_length_mm=float(self.height_input.text()), vertical_line_length_px=self.h)
+ 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
