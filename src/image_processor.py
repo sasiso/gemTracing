@@ -91,7 +91,6 @@ def process_size(image, vertical_line_length_mm,vertical_line_length_px, total_h
     #
 
     return image
-
 def convert_to_stl(contours, vertical_line_length_mm, vertical_line_length_px):
     # Define the pixel to mm conversion factor
     pixel_to_mm = vertical_line_length_mm / vertical_line_length_px  # Example conversion factor (adjust as needed)
@@ -134,4 +133,3 @@ def largest_contour(contours):
             max_area = area
             largest_contour = contour
     return largest_contour
-

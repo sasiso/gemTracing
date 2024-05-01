@@ -1,1 +1,3 @@
 /test/*.stl
+/build/*
+/dist/*

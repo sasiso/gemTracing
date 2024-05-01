@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 from image_processor import convert_to_stl, get_contours, draw_line, largest_contour, process_size
+from stl_utils import save_stl
 from viewer import CustomGraphicsView
 
 class MainWindow(QMainWindow):
@@ -59,7 +60,7 @@ class MainWindow(QMainWindow):
         self.process_button.clicked.connect(self.process_image)
         self.calculate_size_button.clicked.connect(self.process_size)
         self.height_input.textChanged.connect(self.enable_calculate_button)
-        self.makestl_button.clicked.connect(self.make_stl)
+        #self.makestl_button.clicked.connect(self.make_stl)
 
         # Initialize variables
         self.image_path = None
@@ -149,9 +150,13 @@ class MainWindow(QMainWindow):
 
     
     def make_stl(self):
-        convert_to_stl(contours=self.contours, vertical_line_length_mm=float(self.height_input.text()), vertical_line_length_px=self.h)
- 
-
+        # Example usage
+        # Sample x, y coordinates
+    
+        vertical_line_length_mm=float(self.height_input.text())
+        pixel_to_mm = 1
+        
+        save_stl(self.contours[0], pixel_to_mm)
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()

@@ -12,6 +12,8 @@ numpy-stl = "*"
 pyqt5 = "*"
 jupyter = "*"
 pyopengl = "*"
+flask = "*"
+pyinstaller = "==5.13.2"
 
 [dev-packages]
 
