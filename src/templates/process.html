@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processed Image</title>
+</head>
+<body>
+    <div>
+        <h2>Processed Image</h2>
+        <!-- Modify src attribute to dynamically set the processed image data -->
+        <img src="data:image/jpeg;base64,{{ processed_image_data }}" alt="Processed Image">
+    </div>
+    
+    <form method="POST">
+        <label for="decimal_value">Enter Decimal Value:</label>
+        <input type="number" id="decimal_value" name="decimal_value" step="0.1" min="0.1" max="2" value="1.0">
+        <button type="submit">Calibrate</button>
+    </form>
+</body>
+</html>

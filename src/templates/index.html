@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edge Detection and Calibration</title>
+</head>
+<body>
+    <h1>Upload Image</h1>
+    <form id="uploadForm" action="/" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" onchange="displayImage(this)">
+        <input type="submit" value="Next">
+    </form>
+    <div id="imageDisplay" style="display:none;">
+        <h2>Uploaded Image</h2>
+        <img id="uploadedImage" src="" alt="Uploaded Image">
+        <form id="calibrationForm" style="display:none;">
+            <label for="multiplier">Calibration Multiplier:</label>
+            <input type="number" id="multiplier" name="multiplier" step="0.1" value="1.0">
+            <input type="submit" value="Calibrate">
+        </form>
+    </div>
+    <div id="calibratedImage" style="display:none;">
+        <h2>Calibrated Image</h2>
+        <img id="calibrated" src="" alt="Calibrated Image">
+    </div>
+    <script>
+        function displayImage(input) {
+            var file = input.files[0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('uploadedImage').src = e.target.result;
+                document.getElementById('imageDisplay').style.display = 'block';
+                document.getElementById('calibrationForm').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            fetch('/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.body.innerHTML = html;
+            });
+        });
+
+        document.getElementById('calibrationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            fetch('/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                var url = URL.createObjectURL(blob);
+                document.getElementById('calibrated').src = url;
+                document.getElementById('calibratedImage').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

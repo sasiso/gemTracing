@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image</title>
+</head>
+<body>
+    <h1>Upload Image</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="photo" accept="image/*" id="uploadInput" onchange="previewImage(event)">
+        <div id="imagePreview"></div>
+        <button type="submit">Upload</button>
+    </form>
+
+    <script>
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function(){
+                var imagePreview = document.getElementById('imagePreview');
+                imagePreview.innerHTML = '';
+                var img = document.createElement('img');
+                img.src = reader.result;
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                imagePreview.appendChild(img);
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+</body>
+</html>
