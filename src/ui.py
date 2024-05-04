@@ -1,12 +1,27 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QGraphicsScene, QGraphicsView, QGraphicsPixmapItem, QLineEdit, QGridLayout
+from PyQt5.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QAction,
+    QLabel,
+    QVBoxLayout,
+    QHBoxLayout,
+    QPushButton,
+    QWidget,
+    QGraphicsScene,
+    QGraphicsView,
+    QGraphicsPixmapItem,
+    QLineEdit,
+    QGridLayout,
+)
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QColor
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
-from image_processor import convert_to_stl, get_contours, draw_line, largest_contour, process_size
-from stl_utils import save_stl
+from image_processor import get_contours, draw_line, largest_contour, process_size
+from stl_utils import generate_bezel
 from viewer import CustomGraphicsView
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -22,17 +37,21 @@ class MainWindow(QMainWindow):
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         self.layout = QGridLayout(self.central_widget)
-        self.layout.setColumnStretch(1, 4)  # Stretch the right column to take 80% of the window size
+        self.layout.setColumnStretch(
+            1, 4
+        )  # Stretch the right column to take 80% of the window size
 
         # Create panel on the left side
         self.left_panel = QWidget()
         self.left_panel_layout = QVBoxLayout(self.left_panel)
 
         # Create buttons
-        self.process_button = QPushButton("Process")        
+        self.process_button = QPushButton("Process")
         self.calculate_size_button = QPushButton("Calculate")
         self.makestl_button = QPushButton("Make STL")
-        self.calculate_size_button.setEnabled(False)  # Initially disabled until height is entered
+        self.calculate_size_button.setEnabled(
+            False
+        )  # Initially disabled until height is entered
 
         # Add buttons to left panel
         self.left_panel_layout.addWidget(self.process_button)
@@ -40,7 +59,9 @@ class MainWindow(QMainWindow):
         self.left_panel_layout.addWidget(self.makestl_button)
 
         # Add left panel to the layout
-        self.layout.addWidget(self.left_panel, 0, 0, 1, 1)  # Span one row and one column
+        self.layout.addWidget(
+            self.left_panel, 0, 0, 1, 1
+        )  # Span one row and one column
 
         # Create QGraphicsView to display the image
         self.scene = QGraphicsScene()
@@ -60,7 +81,7 @@ class MainWindow(QMainWindow):
         self.process_button.clicked.connect(self.process_image)
         self.calculate_size_button.clicked.connect(self.process_size)
         self.height_input.textChanged.connect(self.enable_calculate_button)
-        #self.makestl_button.clicked.connect(self.make_stl)
+        self.makestl_button.clicked.connect(self.make_stl)
 
         # Initialize variables
         self.image_path = None
@@ -87,7 +108,9 @@ class MainWindow(QMainWindow):
 
     def open_image(self):
         # Open file dialog to select image file
-        self.image_path, _ = QFileDialog.getOpenFileName(self, "Open Image File", "", "Image Files (*.png *.jpg *.jpeg *.bmp)")
+        self.image_path, _ = QFileDialog.getOpenFileName(
+            self, "Open Image File", "", "Image Files (*.png *.jpg *.jpeg *.bmp)"
+        )
 
         if self.image_path:
             # Load image and display in QGraphicsView
@@ -107,13 +130,17 @@ class MainWindow(QMainWindow):
         assert os.path.exists(self.image_path)
 
         self.image = cv2.imread(self.image_path)
-        self.contours = [largest_contour(get_contours(self.image)),]
+        self.contours = [
+            largest_contour(get_contours(self.image)),
+        ]
         cv2.drawContours(self.image, self.contours, -1, (0, 255, 0), 3)
         self.h, self.w = draw_line(self.image, contours=self.contours)
 
         height, width, channel = self.image.shape
         bytesPerLine = 3 * width
-        qImg = QImage(self.image.data, width, height, bytesPerLine, QImage.Format_RGB888)
+        qImg = QImage(
+            self.image.data, width, height, bytesPerLine, QImage.Format_RGB888
+        )
 
         pixmap = QPixmap.fromImage(qImg)
         self.image_item = QGraphicsPixmapItem(pixmap)
@@ -122,20 +149,24 @@ class MainWindow(QMainWindow):
     def process_size(self):
         try:
 
-            vertical_line_length_mm=float(self.height_input.text())
+            vertical_line_length_mm = float(self.height_input.text())
         except Exception:
             return
-        
-        self.cropped = process_size(self.image,
-                                    total_height=self.h,
-                                    vertical_line_length_mm=float(self.height_input.text()),
-                                    vertical_line_length_px=self.h,
-                                    total_width=self.w,
-                                    contours=self.contours)
+
+        self.cropped = process_size(
+            self.image,
+            total_height=self.h,
+            vertical_line_length_mm=float(self.height_input.text()),
+            vertical_line_length_px=self.h,
+            total_width=self.w,
+            contours=self.contours,
+        )
 
         height, width, channel = self.cropped.shape
         bytesPerLine = 3 * width
-        qImg = QImage(self.cropped.data, width, height, bytesPerLine, QImage.Format_RGB888)
+        qImg = QImage(
+            self.cropped.data, width, height, bytesPerLine, QImage.Format_RGB888
+        )
 
         pixmap = QPixmap.fromImage(qImg)
         self.image_item = QGraphicsPixmapItem(pixmap)
@@ -148,15 +179,20 @@ class MainWindow(QMainWindow):
         else:
             self.calculate_size_button.setEnabled(False)
 
-    
     def make_stl(self):
         # Example usage
         # Sample x, y coordinates
-    
-        vertical_line_length_mm=float(self.height_input.text())
-        pixel_to_mm = 1
-        
-        save_stl(self.contours[0], pixel_to_mm)
+        try:
+
+            vertical_line_length_mm = float(self.height_input.text())
+            vertical_line_length_px = self.h
+            pixel_to_mm = vertical_line_length_mm / vertical_line_length_px
+
+            generate_bezel(self.contours[0], pixel_to_mm)
+        except Exception as ex:
+            print(ex)
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
