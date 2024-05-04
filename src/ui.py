@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
         self.calculate_pressed = False
 
     def initUI(self):
-        self.setWindowTitle("Image to STL Converter")
+        self.setWindowTitle("GemTracer by Express CAD Service")
         self.setGeometry(100, 100, 800, 600)  # Initial size and position
         self.showMaximized()  # Maximize window on startup
 
