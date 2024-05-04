@@ -8,12 +8,8 @@ def get_save_path(file_name):
     current_directory = os.getcwd()
     print("Current working directory:", current_directory)
 
-    # Navigate to the parent directory
-    parent_directory = os.path.abspath("..")
-    print("Parent directory:", parent_directory)
-
     # Define the path for the temporary directory
-    stl_dir = os.path.join(parent_directory, "stl")
+    stl_dir = os.path.join(current_directory, "stl")
     # Check if the temporary directory exists
     if not os.path.exists(stl_dir):
         # Create the temporary directory if it doesn't exist
