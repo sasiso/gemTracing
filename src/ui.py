@@ -1,3 +1,4 @@
+import os
 import sys
 from PyQt5.QtWidgets import (
     QApplication,
@@ -219,12 +220,20 @@ class MainWindow(QMainWindow):
             vertical_line_length_mm = float(self.height_input.text())
             vertical_line_length_px = self.h
             pixel_to_mm = vertical_line_length_mm / vertical_line_length_px
+            file_name = os.path.splitext(os.path.basename(self.image_path))[0] + ".stl"
 
             # Generate STL file
-            generate_bezel(self.contours[0], pixel_to_mm)
+            f = generate_bezel(self.contours[0], pixel_to_mm, filename=file_name)
+            msg = QMessageBox()
+            msg.setWindowTitle("STL saved !")
+            msg.setText(f)
+            msg.setIcon(QMessageBox.Information)
+            msg.exec_()
 
             # Show STL saved message
-            self.stl_saved_message.setText("STL saved successfully in folder where this program is.")
+            self.stl_saved_message.setText(
+                "STL saved successfully in folder where this program is."
+            )
             self.makestl_button.setStyleSheet("background-color: #333;")
 
         except Exception as ex:
