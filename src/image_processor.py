@@ -48,8 +48,8 @@ def process_size(image, vertical_line_length_mm,vertical_line_length_px, total_h
         cv2.line(image, (j, 0), (j, image.shape[0]), grid_color, 1)  # Vertical lines
         
     # Display total height and width
-    cv2.putText(image, f'Height {total_height * px_to_mm_vertical:.2f} mm', (x, y - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-    cv2.putText(image, f'Width {total_width * px_to_mm_vertical:.2f} mm', (x, y - 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    cv2.putText(image, f'Height {total_height * px_to_mm_vertical:.2f} mm', (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+    cv2.putText(image, f'Width {total_width * px_to_mm_vertical:.2f} mm', (x, y - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         
     print(f'Total Height: {total_height * px_to_mm_vertical} mm')
     print(f'Total Width: {total_width * px_to_mm_vertical}mm')

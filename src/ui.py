@@ -1,5 +1,8 @@
 import os
 import sys
+import cv2
+from PyQt5.QtGui import QFont
+
 from PyQt5.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -24,14 +27,64 @@ from viewer import CustomGraphicsView
 
 
 class MainWindow(QMainWindow):
+    """
+    Main Window
+    """
     def __init__(self):
         super().__init__()
         self.initUI()
+        self.disable_all_ui()
 
         # Keep track of whether the Calculate button has been pressed
         self.calculate_pressed = False
 
+    def _set_diable(self, element):
+        element.setStyleSheet("background-color: #333; color: #FFF;")
+        element.setEnabled(False)
+
+    def disable_all_ui(self):
+        """
+        disable all UI elements
+        """
+        for b in[self.process_button, self.makestl_button, self.calculate_size_button, self.height_input]:
+            self._set_diable(b)
+
+    def state_need_process(self):
+        """
+        setup UI for need process state
+        """
+        self.disable_all_ui()
+        self.user_message.setText("Please press process to find gemstone")
+        self.process_button.setStyleSheet("background-color: blue;")
+        self.process_button.setEnabled(True)
+
+    def state_need_calculate(self):
+        """
+        setup UI for need process state
+        """
+        self.disable_all_ui()
+
+        self.user_message.setText("Enter vertical size and press calculate")
+        self.calculate_size_button.setStyleSheet("background-color: blue;")
+        self.height_input.setEnabled(True)
+        self.height_input.setText("Enter correct height")
+        self.calculate_size_button.setEnabled(True)
+
+    def state_need_export_stl(self):
+        """
+        setup UI for need process state
+        """
+        for b in[self.process_button, self.makestl_button, self.calculate_size_button, self.height_input]:
+            self._set_diable(b)
+
+        self.user_message.setText("Save STL now")
+        self.makestl_button.setStyleSheet("background-color: blue;")
+        self.calculate_size_button.setEnabled(True)
+        self.makestl_button.setEnabled(True)
+
     def initUI(self):
+        """
+        """
         self.setWindowTitle("GemTracer by Express CAD Service")
         self.setGeometry(100, 100, 800, 600)  # Initial size and position
         self.showMaximized()  # Maximize window on startup
@@ -101,9 +154,13 @@ class MainWindow(QMainWindow):
         # Initialize image item
         self.image_item = None
 
-        # STL saved message
-        self.stl_saved_message = QLabel("First open file")
-        self.layout.addWidget(self.stl_saved_message, 1, 0, 1, 4)
+
+        self.user_message = QLabel("First open file")
+        font = QFont()
+        font.setPointSize(16)  # Set the font size to 16
+        self.user_message.setFont(font)
+
+        self.left_panel_layout.addWidget(self.user_message)
 
         # Create menu bar
         self.create_menu()
@@ -133,21 +190,20 @@ class MainWindow(QMainWindow):
             # Load image and display in QGraphicsView
             image = QPixmap(self.image_path)
             self.image_item = QGraphicsPixmapItem(image)
+            self.scene.clear()
             self.scene.addItem(self.image_item)
 
-            # Clear STL saved message when opening a new file
-            self.stl_saved_message.setText("")
-            self.process_button.setStyleSheet("background-color: yellow;")
-            self.stl_saved_message = QLabel("")
+            self.state_need_process()
 
     def process_image(self):
+        """
+        process image to find contour
+        """
         if not self.image_path:
             QMessageBox.warning(self, "Warning", "Please open an image first.")
             return
 
-        # Logic for processing image goes here
-        import cv2
-        import os
+    
 
         assert os.path.exists(self.image_path)
         self.process_button.setStyleSheet("background-color: #333;")
@@ -155,6 +211,11 @@ class MainWindow(QMainWindow):
         self.height_input.setStyleSheet("background-color: blue;")
 
         self.image = cv2.imread(self.image_path)
+        try:
+            self.image = self.ensure_minimum_size(self.image)
+        except Exception:
+            pass
+        
         self.contours = [
             largest_contour(get_contours(self.image)),
         ]
@@ -171,17 +232,40 @@ class MainWindow(QMainWindow):
         self.image_item = QGraphicsPixmapItem(pixmap)
         self.scene.addItem(self.image_item)
 
-        # Enable Calculate button after processing image
-        self.calculate_size_button.setEnabled(True)
+        self.state_need_calculate()
+
+    def ensure_minimum_size(self, image):
+        """
+        """
+        import numpy as np
+               # Check if the image is smaller than 500x500
+        if image.shape[0] < 500 or image.shape[1] < 500:
+            # Create an empty 500x500 image
+            new_image = np.zeros((500, 500, 3), dtype=np.uint8)
+
+            # Calculate the position to paste the original image
+            x_offset = (500 - image.shape[1]) // 2
+            y_offset = (500 - image.shape[0]) // 2
+
+            # Paste the original image onto the empty image
+            new_image[y_offset:y_offset+image.shape[0], x_offset:x_offset+image.shape[1]] = image
+        else:
+            new_image = image
+
+        return new_image
 
     def process_size(self):
+        """
+        process the sizes
+        """
         try:
-            vertical_line_length_mm = float(self.height_input.text())
+            val = float(self.height_input.text())
             self.height_input.setStyleSheet("background-color: blue;")
         except Exception:
+            self.height_input.setStyleSheet("background-color: red;")
             return
 
-        self.makestl_button.setStyleSheet("background-color: yellow;")
+        self.makestl_button.setStyleSheet("background-color: blue;")
         self.calculate_size_button.setStyleSheet("background-color: #333;")
         self.height_input.setStyleSheet("background-color: #333;")
         self.cropped = process_size(
@@ -193,7 +277,7 @@ class MainWindow(QMainWindow):
             contours=self.contours,
         )
 
-        height, width, channel = self.cropped.shape
+        height, width, _ = self.cropped.shape
         bytesPerLine = 3 * width
         qImg = QImage(
             self.cropped.data, width, height, bytesPerLine, QImage.Format_RGB888
@@ -202,9 +286,7 @@ class MainWindow(QMainWindow):
         pixmap = QPixmap.fromImage(qImg)
         self.image_item = QGraphicsPixmapItem(pixmap)
         self.scene.addItem(self.image_item)
-
-        # Enable Generate STL button only if Calculate button has been pressed
-        self.makestl_button.setEnabled(True)
+        self.state_need_export_stl()
 
     def enable_calculate_button(self):
         height = self.height_input.text()
@@ -231,24 +313,28 @@ class MainWindow(QMainWindow):
             msg.exec_()
 
             # Show STL saved message
-            self.stl_saved_message.setText(
-                "STL saved successfully in folder where this program is."
+            self.user_message.setText(
+                "STL saved"
             )
             self.makestl_button.setStyleSheet("background-color: #333;")
 
         except Exception as ex:
-            self.stl_saved_message.setText("Error in saving STL")
+            self.user_message.setText("Error in saving STL")
             print(ex)
 
     def show_help(self):
         QMessageBox.information(
             self,
-            "Help",
+            "App version : 1.0.1",
             "Open file\n Press Process button.\n Enter size of vertical line.\n Press calculate.\n Save STL.\n contact: expresscadservice@gmail.com",
         )
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    font = QFont()
+    font.setPointSize(14)  # Set the default font size to 16
+    app.setFont(font)
+    
     window = MainWindow()
     sys.exit(app.exec_())
