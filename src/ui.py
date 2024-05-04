@@ -181,6 +181,7 @@ class MainWindow(QMainWindow):
             return
 
         self.makestl_button.setStyleSheet("background-color: yellow;")
+        self.calculate_size_button.setStyleSheet("background-color: #333;")
         self.height_input.setStyleSheet("background-color: #333;")
         self.cropped = process_size(
             self.image,
