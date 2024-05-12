@@ -215,7 +215,8 @@ class MainWindow(QMainWindow):
             self.image = self.ensure_minimum_size(self.image)
         except Exception:
             pass
-        
+
+        cv2.drawContours(self.image, get_contours(self.image), -1, (255, 0, 0), 2)
         self.contours = [
             largest_contour(get_contours(self.image)),
         ]
