@@ -21,9 +21,11 @@ from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFileDialog
 
+from dragablewindow import DraggableWidget
 from image_processor import get_contours, draw_line, largest_contour, process_size
 from stl_utils import generate_bezel
 from viewer import CustomGraphicsView
+import numpy as np
 
 
 class MainWindow(QMainWindow):
@@ -221,6 +223,11 @@ class MainWindow(QMainWindow):
             largest_contour(get_contours(self.image)),
         ]
         cv2.drawContours(self.image, self.contours, -1, (0, 255, 0), 3)
+        height, width, _ = self.image.shape
+        # Create an empty RGBA image with the specified width and height
+        empty_image = np.zeros((height, width, 4), dtype=np.uint8)
+        self.draggable_window = DraggableWidget(self, width, height, contour=self.contours)
+        self.layout.addWidget(self.draggable_window, 0, 1, 1, 4)  # Span one row and four columns
         self.h, self.w = draw_line(self.image, contours=self.contours)
 
         height, width, channel = self.image.shape
