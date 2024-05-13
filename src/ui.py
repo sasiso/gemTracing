@@ -21,9 +21,11 @@ from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFileDialog
 
+from dragablewindow import DraggableWidget
 from image_processor import get_contours, draw_line, largest_contour, process_size
 from stl_utils import generate_bezel
 from viewer import CustomGraphicsView
+import numpy as np
 
 
 class MainWindow(QMainWindow):
@@ -85,10 +87,10 @@ class MainWindow(QMainWindow):
     def initUI(self):
         """
         """
-        self.setWindowTitle("GemTracer by Express CAD Service")
+        self.setWindowTitle("GemTracer by Express CAD Service v1.0.2")
         self.setGeometry(100, 100, 800, 600)  # Initial size and position
         self.showMaximized()  # Maximize window on startup
-
+        self.draggable_window = None
         # Apply dark theme
         self.setStyleSheet("background-color: #333; color: #FFF;")
 
@@ -215,12 +217,19 @@ class MainWindow(QMainWindow):
             self.image = self.ensure_minimum_size(self.image)
         except Exception:
             pass
+        image_copy = self.image.copy()
 
-        cv2.drawContours(self.image, get_contours(self.image), -1, (255, 0, 0), 2)
+        cv2.drawContours(image_copy, get_contours(self.image), -1, (255, 0, 0), 2)
         self.contours = [
-            largest_contour(get_contours(self.image)),
+            largest_contour(get_contours(image_copy)),
         ]
-        cv2.drawContours(self.image, self.contours, -1, (0, 255, 0), 3)
+        height, width, _ = self.image.shape
+        # Create an empty RGBA image with the specified width and height
+        empty_image = np.zeros((height, width, 4), dtype=np.uint8)
+        if self.draggable_window:
+            self.draggable_window.close()
+        self.draggable_window = DraggableWidget(self, width, height, contour=self.contours)
+        self.layout.addWidget(self.draggable_window, 0, 1, 1, 4)  # Span one row and four columns
         self.h, self.w = draw_line(self.image, contours=self.contours)
 
         height, width, channel = self.image.shape
