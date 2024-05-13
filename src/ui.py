@@ -217,12 +217,12 @@ class MainWindow(QMainWindow):
             self.image = self.ensure_minimum_size(self.image)
         except Exception:
             pass
+        image_copy = self.image.copy()
 
-        cv2.drawContours(self.image, get_contours(self.image), -1, (255, 0, 0), 2)
+        cv2.drawContours(image_copy, get_contours(self.image), -1, (255, 0, 0), 2)
         self.contours = [
-            largest_contour(get_contours(self.image)),
+            largest_contour(get_contours(image_copy)),
         ]
-        cv2.drawContours(self.image, self.contours, -1, (0, 255, 0), 3)
         height, width, _ = self.image.shape
         # Create an empty RGBA image with the specified width and height
         empty_image = np.zeros((height, width, 4), dtype=np.uint8)
