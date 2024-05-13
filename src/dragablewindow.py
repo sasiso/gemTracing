@@ -16,9 +16,23 @@ class DraggableWidget(QWidget):
 
         # Create an empty image with transparent red color
         self.image = np.zeros((self.height, self.width, 4), dtype=np.uint8)
-        self.image[:, :, 0:3] = [0, 0, 255]  # Set RGB channels to red
+        self.image[:, :, 0:3] = [0, 0, 10]  # Set RGB channels to red
         self.image[:, :, 3] = 100  # Set alpha channel (transparency)
         cv2.drawContours(self.image, contour, -1, (255, 0, 0), 2)
+
+                # Define the text to be drawn
+        text = "Drag and align to check"        # Choose the font
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        # Choose the font scale and thickness
+        font_scale = 1
+        thickness = 1
+        # Choose the text color in BGR
+        color = (0, 255, 0)  # Green 
+        # Choose the position to draw text
+        position = (50, 50)  # Coordinates of the top-left corner of the text
+
+        # Draw the text on the image
+        cv2.putText(self.image, text, position, font, font_scale, color, thickness)
 
     def paintEvent(self, event):
         painter = QPainter(self)

@@ -90,7 +90,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("GemTracer by Express CAD Service")
         self.setGeometry(100, 100, 800, 600)  # Initial size and position
         self.showMaximized()  # Maximize window on startup
-
+        self.draggable_window = None
         # Apply dark theme
         self.setStyleSheet("background-color: #333; color: #FFF;")
 
@@ -226,6 +226,8 @@ class MainWindow(QMainWindow):
         height, width, _ = self.image.shape
         # Create an empty RGBA image with the specified width and height
         empty_image = np.zeros((height, width, 4), dtype=np.uint8)
+        if self.draggable_window:
+            self.draggable_window.close()
         self.draggable_window = DraggableWidget(self, width, height, contour=self.contours)
         self.layout.addWidget(self.draggable_window, 0, 1, 1, 4)  # Span one row and four columns
         self.h, self.w = draw_line(self.image, contours=self.contours)
