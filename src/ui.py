@@ -87,7 +87,7 @@ class MainWindow(QMainWindow):
     def initUI(self):
         """
         """
-        self.setWindowTitle("GemTracer by Express CAD Service")
+        self.setWindowTitle("GemTracer by Express CAD Service v1.0.2")
         self.setGeometry(100, 100, 800, 600)  # Initial size and position
         self.showMaximized()  # Maximize window on startup
         self.draggable_window = None
