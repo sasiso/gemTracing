@@ -1,7 +1,7 @@
 {
   "editor.formatOnSave": false,
   "[python]": {
-    "editor.defaultFormatter": "mikoz.black-py",
+    "editor.defaultFormatter": "ms-python.black-formatter",
     "source.organizeImports.ruff": "explicit"
   },
   "python.formatting.provider": "black"

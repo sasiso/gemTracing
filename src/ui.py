@@ -22,7 +22,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFileDialog
 
 from dragablewindow import DraggableWidget
-from image_processor import get_contours, draw_line, largest_contour, process_size
+from image_processor import get_contours, draw_line, largest_contour, process_size, smooth_contour
 from stl_utils import generate_bezel
 from viewer import CustomGraphicsView
 import numpy as np
@@ -220,8 +220,7 @@ class MainWindow(QMainWindow):
         image_copy = self.image.copy()
 
         cv2.drawContours(image_copy, get_contours(self.image), -1, (255, 0, 0), 2)
-        self.contours = [
-            largest_contour(get_contours(image_copy)),
+        self.contours = [smooth_contour(largest_contour(get_contours(image_copy))),
         ]
         height, width, _ = self.image.shape
         # Create an empty RGBA image with the specified width and height
